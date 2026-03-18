@@ -12,12 +12,14 @@ body {
 .card {
     width: 90%;
     max-width: 470px;
-    background: linear-gradient(135deg, rgb(9, 174, 177),rgb(85, 83, 220));
+    background: rgba(255, 255, 255, 0.1); /* changed */
+    backdrop-filter: blur(10px); /* new */
     color: #fff;
     margin: 100px auto 0;
     border-radius: 20px;
     padding: 40px 35px;
     text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3); /* new */
 }
 .search {
     width: 100%;
@@ -36,6 +38,10 @@ body {
     flex: 1;
     margin-right: 16px;
     font-size: 18px;
+    transition: 0.3s;
+}
+.search input:focus{
+    transform: scale(1.03);
 }
 .search button{
     border: 0;
@@ -48,6 +54,9 @@ body {
 }
 .search button img{
     width: 16px;
+}
+.search button:hover{
+    background: #d4f5f2;
 }
 .weather-icon{
     width: 170px;
@@ -112,4 +121,9 @@ body {
 
 .suggestions li:hover{
     background:#eee;
+}
+.loading{
+    display: none;
+    margin-top: 20px;
+    font-size: 18px;
 }

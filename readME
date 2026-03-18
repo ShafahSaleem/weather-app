@@ -1,0 +1,24 @@
+#  Weather App
+
+A simple and responsive weather application built using HTML, CSS, and JavaScript.
+
+## Features
+- Search weather by city
+- Real-time weather data using API
+- Autocomplete city suggestions
+- Displays temperature, humidity, and wind speed
+- Weather icons based on conditions
+- Error handling for invalid cities
+- Loading indicator
+
+##  Technologies Used
+- HTML
+- CSS
+- JavaScript
+- OpenWeather API
+
+##  Live Demo
+https://shafahsaleem.github.io/weather-app/
+
+## Author
+Shafah Saleem
