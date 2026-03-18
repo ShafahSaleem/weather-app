@@ -43,14 +43,43 @@
     </div>
 
     <script>
-
+        const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
         const apiKey = "73a05335c1ad58743885eeccc0b40be4";
         const apiUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
 
         const searchBox = document.querySelector(".search input");
         const searchBtn = document.querySelector(".search button");
         const weatherIcon = document.querySelector(".weather-icon");
+        const suggestions = document.querySelector(".suggestions");
 
+        let userLat = null;
+        let userLon = null;
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userLat = position.coords.latitude;
+                userLon = position.coords.longitude;
+            },
+            (error) => {
+                console.log("Location access denied");
+            }
+        );
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth radius (km)
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) *
+                Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c;
+        }
 
         async function checkWeather(city) {
             document.querySelector(".loading").style.display = "block";
@@ -59,11 +88,19 @@
             const response = await fetch(apiUrl + city + `&appid=${apiKey}`);
 
             if (response.status == 404) {
-              document.querySelector(".loading").style.display = "none";
+                document.querySelector(".loading").style.display = "none";
                 document.querySelector(".error").style.display = "block";
                 document.querySelector(".weather").style.display = "None";
             } else {
                 var data = await response.json();
+                // SORT BY DISTANCE (nearest first)
+                if (userLat && userLon) {
+                    data.sort((a, b) => {
+                        const distA = getDistance(userLat, userLon, a.lat, a.lon);
+                        const distB = getDistance(userLat, userLon, b.lat, b.lon);
+                        return distA - distB;
+                    });
+                }
 
                 document.querySelector(".loading").style.display = "none";
                 document.querySelector(".city").innerHTML = data.name;
@@ -100,14 +137,67 @@
 
         searchBtn.addEventListener("click", () => {
             checkWeather(searchBox.value);
-        })
+            suggestions.style.display = "none";
+        });
         searchBox.addEventListener("keypress", function (e) {
             if (e.key === "Enter") {
                 checkWeather(searchBox.value);
-                suggestions.innerHTML = "";
+                suggestions.style.display = "none";
             }
         });
+        async function getCities(city) {
 
+            // If user types less than 2 letters → hide dropdown
+            if (city.length < 2) {
+                suggestions.innerHTML = "";
+                suggestions.style.display = "none";
+                return;
+            }
+
+            // API for city suggestions
+            const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=10&appid=${apiKey}`;
+
+            const response = await fetch(geoUrl);
+            const data = await response.json();
+
+            // clear old list
+            suggestions.innerHTML = "";
+
+            // If no results → hide dropdown
+            if (data.length === 0) {
+                suggestions.style.display = "none";
+                return;
+            }
+
+            // show dropdown
+            suggestions.style.display = "block";
+
+            // create list items
+            data.forEach(place => {
+
+                const li = document.createElement("li");
+
+                // show city + country
+                li.innerHTML = `📍 ${place.name}${place.state ? ", " + place.state : ""}, ${regionNames.of(place.country)}`;
+
+                // when clicked
+                li.addEventListener("click", () => {
+                    searchBox.value = place.name;
+                    suggestions.style.display = "none";
+                    checkWeather(place.name);
+                });
+
+                suggestions.appendChild(li);
+            });
+        }
+        searchBox.addEventListener("input", () => {
+            getCities(searchBox.value);
+        });
+        document.addEventListener("click", function (e) {
+            if (!document.querySelector(".search").contains(e.target)) {
+                suggestions.style.display = "none";
+            }
+        });
     </script>
 
 
