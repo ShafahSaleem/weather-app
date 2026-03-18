@@ -127,22 +127,25 @@ body {
     display: none;
 }
 
-.suggestions{
-    position:absolute;
-    top:70px;
-    left:0;
-    width:100%;
-    background:white;
-    color:black;
-    list-style:none;
-    border-radius:10px;
-    max-height:200px;
-    overflow-y:auto;
-    display:none; /* IMPORTANT */
-    box-shadow:0 5px 20px rgba(0,0,0,0.3);
-    z-index:1000;
+.search{
+    position: relative;
 }
 
+.suggestions{
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: white;
+    color: black;
+    list-style: none;
+    border-radius: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+
+    display: none;        /* hidden by default */
+    z-index: 9999;        /* 🔥 VERY IMPORTANT */
+}
 .suggestions li{
     padding:10px;
     cursor:pointer;
