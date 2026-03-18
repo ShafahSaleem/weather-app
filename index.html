@@ -94,13 +94,6 @@
             } else {
                 var data = await response.json();
                 // SORT BY DISTANCE (nearest first)
-                if (userLat && userLon) {
-                    data.sort((a, b) => {
-                        const distA = getDistance(userLat, userLon, a.lat, a.lon);
-                        const distB = getDistance(userLat, userLon, b.lat, b.lon);
-                        return distA - distB;
-                    });
-                }
 
                 document.querySelector(".loading").style.display = "none";
                 document.querySelector(".city").innerHTML = data.name;
@@ -147,42 +140,34 @@
         });
         async function getCities(city) {
 
-            // If user types less than 2 letters → hide dropdown
             if (city.length < 2) {
                 suggestions.innerHTML = "";
                 suggestions.style.display = "none";
                 return;
             }
 
-            // API for city suggestions
-            const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=10&appid=${apiKey}`;
+            const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${apiKey}`;
 
             const response = await fetch(geoUrl);
             const data = await response.json();
 
-            // clear old list
+            console.log(data); // 👈 check in console
+
             suggestions.innerHTML = "";
 
-            // If no results → hide dropdown
             if (data.length === 0) {
                 suggestions.style.display = "none";
                 return;
             }
 
-            // show dropdown
-            suggestions.style.display = "block";
+            suggestions.style.display = "block"; // 🔥 SHOW DROPDOWN
 
-            // create list items
             data.forEach(place => {
 
                 const li = document.createElement("li");
-
-                // show city + country
-                li.innerHTML = `📍 ${place.name}${place.state ? ", " + place.state : ""}, ${regionNames.of(place.country)}`;
-
-                // when clicked
+                li.textContent = `${place.name}${place.state ? ", " + place.state : ""}, ${place.country}`;
                 li.addEventListener("click", (e) => {
-                    e.stopPropagation(); // IMPORTANT
+                    e.stopPropagation();  // 🔥 important for mobile
                     searchBox.value = place.name;
                     suggestions.style.display = "none";
                     checkWeather(place.name);
@@ -190,8 +175,8 @@
 
                 suggestions.appendChild(li);
             });
-            console.log(data);
         }
+
         let timeout;
 
         searchBox.addEventListener("input", () => {
