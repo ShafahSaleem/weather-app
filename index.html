@@ -139,7 +139,7 @@
             checkWeather(searchBox.value);
             suggestions.style.display = "none";
         });
-        searchBox.addEventListener("keypress", function (e) {
+        searchBox.addEventListener("keydown", function (e) {
             if (e.key === "Enter") {
                 checkWeather(searchBox.value);
                 suggestions.style.display = "none";
@@ -181,7 +181,8 @@
                 li.innerHTML = `📍 ${place.name}${place.state ? ", " + place.state : ""}, ${regionNames.of(place.country)}`;
 
                 // when clicked
-                li.addEventListener("click", () => {
+                li.addEventListener("click", (e) => {
+                    e.stopPropagation(); // IMPORTANT
                     searchBox.value = place.name;
                     suggestions.style.display = "none";
                     checkWeather(place.name);
@@ -189,9 +190,16 @@
 
                 suggestions.appendChild(li);
             });
+            console.log(data);
         }
+        let timeout;
+
         searchBox.addEventListener("input", () => {
-            getCities(searchBox.value);
+            clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                getCities(searchBox.value);
+            }, 300);
         });
         document.addEventListener("click", function (e) {
             if (!document.querySelector(".search").contains(e.target)) {
